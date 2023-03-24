@@ -1,0 +1,79 @@
+_schema-version: "3.2"
+ID: mtaConsumer
+description: Fiori elements app
+version: 0.0.1
+modules:
+- name: mtaConsumer-dest-content
+  type: com.sap.application.content
+  requires:
+  - name: mtaProvider-destination-service
+    parameters:
+      content-target: true
+  - name: mtaConsumer-repo-host
+    parameters:
+      service-key:
+        name: mtaConsumer-repo-host-key
+  - name: mtaConsumer-uaa
+    parameters:
+      service-key:
+        name: mtaConsumer-uaa-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: mtaConsumer_repo_host
+          ServiceInstanceName: mtaConsumer-html5-srv
+          ServiceKeyName: mtaConsumer-repo-host-key
+          sap.cloud.service: mtaConsumer
+        - Authentication: OAuth2UserTokenExchange
+          Name: mtaConsumer_uaa
+          ServiceInstanceName: mtaConsumer-xsuaa-srv
+          ServiceKeyName: mtaConsumer-uaa-key
+          sap.cloud.service: mtaConsumer
+        existing_destinations_policy: update
+  build-parameters:
+    no-source: true
+- name: mtaConsumer-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: mtaConsumer-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - consumer.zip
+      name: consumer
+      target-path: resources/
+- name: consumer
+  type: html5
+  path: consumer
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: mtaProvider-destination-service
+  type: org.cloudfoundry.existing-service
+  parameters:
+    service-name: mtaProvider-destination-service
+- name: mtaConsumer-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: mtaConsumer-xsuaa-srv
+    service-plan: application
+- name: mtaConsumer-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: mtaConsumer-html5-srv
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo

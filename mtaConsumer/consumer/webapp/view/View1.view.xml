@@ -1,0 +1,10 @@
+<mvc:View controllerName="consumer.controller.View1"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns:control="provider.control"
+    xmlns="sap.m">
+    <Page id="page" title="{i18n>title}">
+        <content>
+            <control:CustomControl text="Hello world"/>
+        </content>
+    </Page>
+</mvc:View>
